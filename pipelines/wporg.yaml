@@ -2,10 +2,11 @@ name: Pull plugin/theme archives from WordPress.org
 
 needs:
   packages:
+    - busybox
     - unzip
 
 inputs:
-  expected-sha256:
+  sha256:
     description: |
       The expected SHA256 of the downloaded artifact.
   
@@ -22,7 +23,7 @@ inputs:
   type:
     description: |
       The package type ("plugin", "theme") to use.
-    default: plugin
+    default: "plugin"
 
   destination:
     description: |
@@ -32,8 +33,8 @@ inputs:
 pipeline:
   - uses: fetch
     with:
-      uri: https://downloads.wordpress.org/${{inputs.type}}/${{inputs.slug}}.${{inputs.version}}.zip
-      expected-sha256: ${{inputs.expected-sha256}}
+      uri: "https://downloads.wordpress.org/${{inputs.type}}/${{inputs.slug}}.${{inputs.version}}.zip"
+      expected-sha256: ${{inputs.sha256}}
       purl-name: ${{inputs.slug}}
       purl-version: ${{inputs.version}}
       extract: false
