@@ -1,0 +1,48 @@
+name: Pull plugin/theme archives from WordPress.org
+
+needs:
+  packages:
+    - busybox
+    - unzip
+
+inputs:
+  sha256:
+    description: |
+      The expected SHA256 of the downloaded artifact.
+  
+  slug:
+    description: |
+      The package's WordPress.org slug.
+    default: ${{package.name}}
+
+  version:
+    description: |
+      The package version to download.
+    default: ${{package.version}}
+  
+  type:
+    description: |
+      The package type ("plugin", "theme") to use.
+    default: "plugin"
+
+  destination:
+    description: |
+      The location to install the package.
+    default: ""
+
+pipeline:
+  - uses: fetch
+    with:
+      uri: "https://downloads.wordpress.org/${{inputs.type}}/${{inputs.slug}}.${{inputs.version}}.zip"
+      expected-sha256: ${{inputs.sha256}}
+      purl-name: ${{inputs.slug}}
+      purl-version: ${{inputs.version}}
+      extract: false
+  - runs: |
+      set -ex
+      dest='${{inputs.destination}}'
+      if [ -z "$dest" ]; then
+        dest='${{targets.destdir}}/usr/src/wordpress/wp-content/${{inputs.type}}s/'
+      fi
+      mkdir -p $dest
+      unzip ${{inputs.slug}}.${{inputs.version}}.zip -d $dest
